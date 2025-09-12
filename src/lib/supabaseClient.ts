@@ -10,5 +10,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   }
 });
-
-// Remove the onAuthStateChange from here - let AuthContext handle it

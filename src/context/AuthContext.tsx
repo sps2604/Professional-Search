@@ -14,25 +14,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get current session
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
+    let mounted = true;
+
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Session fetch error:', error);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
+      }
     };
 
-    getSession();
+    getInitialSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth event:', event, session?.user?.id);
         
-        setUser(session?.user ?? null);
-        setLoading(false);
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
 
         // Handle profile creation only when signed in
-        if (event === "SIGNED_IN" && session?.user) {
+        if (event === "SIGNED_IN" && session?.user && mounted) {
           const user = session.user;
 
           try {
@@ -69,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);

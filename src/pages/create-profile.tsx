@@ -12,20 +12,24 @@ export default function CreateProfile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If not loading and no user, redirect to register
-    if (!loading && !user) {
-      console.log('No authenticated user found, redirecting to register');
-      navigate('/register', { replace: true });
-    }
+    // Only redirect after a longer delay to allow session to fully establish
+    const redirectTimer = setTimeout(() => {
+      if (!loading && !user) {
+        console.log('No authenticated user found after delay, redirecting to register');
+        navigate('/register', { replace: true });
+      }
+    }, 2000); // 2 second delay
+
+    return () => clearTimeout(redirectTimer);
   }, [user, loading, navigate]);
 
-  // Show loading while checking auth
-  if (loading) {
+  // Show loading while checking auth (extended time)
+  if (loading || (!user && loading !== false)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+          <p className="mt-4 text-gray-600">Verifying your authentication...</p>
         </div>
       </div>
     );

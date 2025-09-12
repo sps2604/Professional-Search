@@ -38,7 +38,7 @@ export default function Register() {
             first_name: firstName, 
             last_name: lastName 
           },
-          emailRedirectTo: `${window.location.origin}/create-profile`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
@@ -78,7 +78,7 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/create-profile`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             prompt: "select_account",
           },
@@ -113,7 +113,7 @@ export default function Register() {
             first_name: firstName, 
             last_name: lastName 
           },
-          emailRedirectTo: `${window.location.origin}/create-profile`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 

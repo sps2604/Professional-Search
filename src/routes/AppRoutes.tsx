@@ -6,6 +6,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ResetPassword from "../pages/ResetPassword";
 import CreateProfile from "../pages/create-profile";
+import AuthCallback from "../pages/AuthCallback";
 // Extra pages
 import PostJobPage from "../pages/PostAJob";
 import FindJobPage from "../pages/FindAJob";
@@ -29,6 +30,7 @@ export default function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/home2" element={<Home2 />} />
 
           {/* Core Job Pages */}

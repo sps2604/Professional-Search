@@ -1,50 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AfterLoginNavbar from "../components/AfterLoginNavbar";
 import { FaUser, FaAddressBook, FaLink, FaUpload, FaTimes } from "react-icons/fa";
 import { supabase } from "../lib/supabaseClient";
-import { useAuth } from '../context/AuthContext';
 
 type Tab = "personal" | "contact" | "links";
 
 export default function CreateProfile() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Only redirect after a longer delay to allow session to fully establish
-    const redirectTimer = setTimeout(() => {
-      if (!loading && !user) {
-        console.log('No authenticated user found after delay, redirecting to register');
-        navigate('/register', { replace: true });
-      }
-    }, 2000); // 2 second delay
-
-    return () => clearTimeout(redirectTimer);
-  }, [user, loading, navigate]);
-
-  // Show loading while checking auth (extended time)
-  if (loading || (!user && loading !== false)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verifying your authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If no user after loading, don't render the form
-  if (!user) {
-    return null;
-  }
-
   const [activeTab, setActiveTab] = useState<Tab>("personal");
   const [uploadMode, setUploadMode] = useState<"url" | "upload">("upload");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
 
   // Form data
   const [formData, setFormData] = useState({
@@ -460,7 +428,7 @@ export default function CreateProfile() {
                 value={formData.mobile}
                 onChange={(e) => handleChange("mobile", e.target.value)}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 shadow-sm focus:outline-none
-                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 placeholder="Enter contact number"
               />
             </div>
@@ -471,7 +439,7 @@ export default function CreateProfile() {
                 value={formData.whatsapp}
                 onChange={(e) => handleChange("whatsapp", e.target.value)}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 shadow-sm focus:outline-none
-                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 placeholder="Enter active WhatsApp number"
               />
             </div>
@@ -482,7 +450,7 @@ export default function CreateProfile() {
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 shadow-sm focus:outline-none
-                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 placeholder="Enter professional or business email"
               />
             </div>
@@ -508,7 +476,7 @@ export default function CreateProfile() {
                   value={(formData as any)[field]}
                   onChange={(e) => handleChange(field, e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 shadow-sm focus:outline-none
-                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                   placeholder={`Enter ${label} link`}
                 />
               </div>

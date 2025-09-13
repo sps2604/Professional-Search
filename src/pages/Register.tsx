@@ -19,108 +19,115 @@ export default function Register() {
   const [message, setMessage] = useState<string | null>(null);
 
   // Handle Register with email + password
-  // Handle Register with email + password
-const handleRegister = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
-  setMessage(null);
-  setLoading(true);
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    setLoading(true);
 
-  try {
-    console.log('Starting registration process...');
-    
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { 
-          first_name: firstName, 
-          last_name: lastName 
+    try {
+      console.log('Starting registration process...');
+      
+      // Sign up user with Supabase Auth
+      // The profile will be automatically created by the onAuthStateChange listener
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { 
+            first_name: firstName, 
+            last_name: lastName 
+          },
+          emailRedirectTo: `${window.location.origin}/create-profile`,
         },
-        emailRedirectTo: `${window.location.origin}/create-profile`,
-      },
-    });
+      });
 
-    if (signUpError) {
-      console.error('SignUp Error:', signUpError);
-      throw signUpError;
+      if (signUpError) {
+        console.error('SignUp Error:', signUpError);
+        throw signUpError;
+      }
+
+      console.log('SignUp successful:', data);
+
+      // Check if user needs email confirmation
+      if (data.user && !data.user.email_confirmed_at) {
+        setMessage("📩 Registration successful! Please check your email to confirm your account.");
+      } else if (data.user && data.user.email_confirmed_at) {
+        // User is immediately confirmed, redirect to create profile
+        setMessage("✅ Registration successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/create-profile");
+        }, 1500);
+      } else {
+        setMessage("✅ Registration successful! Please check your email to confirm your account.");
+      }
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.message || "Something went wrong during registration");
+    } finally {
+      setLoading(false);
     }
-
-    console.log('SignUp successful:', data);
-
-    // Always show email confirmation message
-    setMessage("📩 Registration successful! Please check your email to confirm your account, then you'll be redirected to create your profile.");
-    
-  } catch (err: any) {
-    console.error('Registration error:', err);
-    setError(err.message || "Something went wrong during registration");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // Handle Google Sign up
-  // Handle Google Sign up
-const handleGoogleRegister = async () => {
-  setError(null);
-  setMessage(null);
-  
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/create-profile`,
-        queryParams: {
-          prompt: "select_account",
+  const handleGoogleRegister = async () => {
+    setError(null);
+    setMessage(null);
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/create-profile`,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      console.error('Google OAuth Error:', error);
-      setError(error.message);
+      if (error) {
+        console.error('Google OAuth Error:', error);
+        setError(error.message);
+      }
+    } catch (err: any) {
+      console.error('Google registration error:', err);
+      setError("Failed to register with Google");
     }
-  } catch (err: any) {
-    console.error('Google registration error:', err);
-    setError("Failed to register with Google");
-  }
-};
+  };
 
-// Handle Magic Link Register
-const handleMagicLinkRegister = async () => {
-  if (!email.trim()) {
-    setError("Please enter your email address first");
-    return;
-  }
+  // Handle Magic Link Register
+  const handleMagicLinkRegister = async () => {
+    if (!email.trim()) {
+      setError("Please enter your email address first");
+      return;
+    }
 
-  setError(null);
-  setMessage(null);
+    setError(null);
+    setMessage(null);
 
-  try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        data: { 
-          first_name: firstName, 
-          last_name: lastName 
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          data: { 
+            first_name: firstName, 
+            last_name: lastName 
+          },
+          emailRedirectTo: `${window.location.origin}/create-profile`,
         },
-        emailRedirectTo: `${window.location.origin}/create-profile`,
-      },
-    });
+      });
 
-    if (error) {
-      console.error('Magic Link Error:', error);
-      setError(error.message);
-    } else {
-      setMessage("📩 Magic Link sent! Check your email.");
+      if (error) {
+        console.error('Magic Link Error:', error);
+        setError(error.message);
+      } else {
+        setMessage("📩 Magic Link sent! Check your email.");
+      }
+    } catch (err: any) {
+      console.error('Magic link error:', err);
+      setError("Failed to send magic link");
     }
-  } catch (err: any) {
-    console.error('Magic link error:', err);
-    setError("Failed to send magic link");
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
